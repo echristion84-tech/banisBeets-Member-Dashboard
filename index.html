@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Dashboard — Bani's Beets Coworking</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #080808;
+    --black2: #0f0f0f;
+    --black3: #161616;
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dim: #7a6228;
+    --gold-faint: rgba(201,168,76,0.08);
+    --white: #f5f0e8;
+    --muted: #7a7670;
+    --border: rgba(201,168,76,0.15);
+    --border-soft: rgba(255,255,255,0.06);
+  }
+
+  html { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px; }
+
+  body { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,8,8,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    border: 1px solid var(--gold-dim);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-weight: 400; letter-spacing: 0.04em;
+    color: var(--white);
+  }
+  .brand-name span { color: var(--gold); }
+  .topbar-right {
+    display: flex; align-items: center; gap: 20px;
+  }
+  .tier-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px; letter-spacing: 0.12em;
+    color: var(--gold);
+    border: 1px solid var(--gold-dim);
+    padding: 3px 10px; border-radius: 2px;
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-faint);
+    border: 1px solid var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; color: var(--gold);
+    cursor: pointer;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    flex: 1;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--black2);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    position: sticky; top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    padding: 0 20px;
+    margin-bottom: 32px;
+  }
+  .sidebar-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10px; letter-spacing: 0.18em;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+    padding: 0 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 8px; border-radius: 4px;
+    font-size: 13.5px; font-weight: 400;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--gold-faint); color: var(--white); }
+  .nav-item.active { background: var(--gold-faint); color: var(--gold); }
+  .nav-item.active .nav-icon { color: var(--gold); }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--gold);
+    color: var(--black);
+    font-size: 10px; font-weight: 500;
+    padding: 1px 6px; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    padding: 36px 40px;
+    background: var(--black);
+    overflow-y: auto;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+  .greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 300; letter-spacing: 0.02em;
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .greeting em { font-style: italic; color: var(--gold); }
+  .greeting-sub {
+    font-size: 13px; color: var(--muted); font-weight: 300;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--black3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .stat-label {
+    font-size: 11px; letter-spacing: 0.1em;
+    color: var(--muted); font-family: 'Bebas Neue', sans-serif;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 600; color: var(--white);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-meta { font-size: 11px; color: var(--muted); }
+  .stat-meta.gold { color: var(--gold); }
+
+  /* ── GRID ── */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+  }
+  .col-left { display: flex; flex-direction: column; gap: 24px; }
+  .col-right { display: flex; flex-direction: column; gap: 24px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--black3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px; letter-spacing: 0.14em;
+    color: var(--gold);
+  }
+  .card-link {
+    font-size: 11px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.05em;
+    transition: color 0.15s;
+  }
+  .card-link:hover { color: var(--gold); }
+  .card-body { padding: 20px 22px; }
+
+  /* ── ANNOUNCEMENTS ── */
+  .announcement {
+    display: flex; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .announcement:last-child { border-bottom: none; padding-bottom: 0; }
+  .announcement:first-child { padding-top: 0; }
+  .ann-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold); flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .ann-dot.muted { background: var(--muted); }
+  .ann-title { font-size: 13.5px; font-weight: 500; margin-bottom: 3px; color: var(--white); }
+  .ann-body { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 5px; }
+  .ann-date { font-size: 11px; color: var(--gold-dim); letter-spacing: 0.04em; }
+
+  /* ── EVENT LIST ── */
+  .event-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .event-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .event-item:first-child { padding-top: 0; }
+  .event-item:hover .event-name { color: var(--gold); }
+  .event-date-block {
+    background: var(--gold-faint);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 44px; flex-shrink: 0;
+    text-align: center; padding: 6px 4px;
+  }
+  .event-month {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10px; letter-spacing: 0.1em;
+    color: var(--gold); display: block;
+  }
+  .event-day {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600; color: var(--white);
+    line-height: 1; display: block;
+  }
+  .event-name { font-size: 13.5px; font-weight: 500; color: var(--white); margin-bottom: 3px; }
+  .event-meta { font-size: 12px; color: var(--muted); }
+  .event-badge {
+    margin-left: auto; flex-shrink: 0;
+    font-size: 10px; padding: 3px 8px; border-radius: 2px;
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.1em;
+  }
+  .event-badge.free { background: rgba(29,158,117,0.15); color: #4ecfa0; border: 1px solid rgba(29,158,117,0.3); }
+  .event-badge.included { background: var(--gold-faint); color: var(--gold); border: 1px solid var(--border); }
+  .event-badge.ticket { background: rgba(255,255,255,0.04); color: var(--muted); border: 1px solid var(--border-soft); }
+
+  /* ── QUICK ACCESS ── */
+  .quick-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .quick-item {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+    display: block;
+  }
+  .quick-item:hover { border-color: var(--gold); background: var(--gold-faint); }
+  .quick-item-icon { font-size: 20px; margin-bottom: 8px; display: block; }
+  .quick-item-name { font-size: 12.5px; font-weight: 500; color: var(--white); margin-bottom: 2px; }
+  .quick-item-desc { font-size: 11px; color: var(--muted); }
+
+  /* ── MEMBERSHIP CARD ── */
+  .membership-card {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1406 100%);
+    border: 1px solid var(--gold-dim);
+    border-radius: 8px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .membership-card::after {
+    content: 'BB';
+    position: absolute; right: -10px; bottom: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px; color: rgba(201,168,76,0.05);
+    line-height: 1; pointer-events: none;
+  }
+  .mc-tier {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10px; letter-spacing: 0.2em;
+    color: var(--gold-dim); margin-bottom: 12px;
+  }
+  .mc-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 300;
+    color: var(--white); margin-bottom: 4px;
+  }
+  .mc-rate {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; font-weight: 600; color: var(--gold);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .mc-rate span { font-size: 14px; font-weight: 300; color: var(--muted); }
+  .mc-lock {
+    font-size: 11px; color: var(--gold-dim);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .mc-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
+  .mc-perks { list-style: none; }
+  .mc-perks li {
+    font-size: 12px; color: var(--muted);
+    padding: 4px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mc-perks li::before { content: '◆'; font-size: 6px; color: var(--gold); flex-shrink: 0; }
+
+  /* ── HOURS CARD ── */
+  .hours-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+  }
+  .hours-row:last-child { border-bottom: none; }
+  .hours-day { color: var(--muted); }
+  .hours-time { color: var(--white); }
+  .hours-time.open { color: #4ecfa0; }
+  .hours-status {
+    display: inline-block;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ecfa0;
+    margin-right: 6px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  /* ── WIFI CARD ── */
+  .wifi-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border-soft);
+    font-size: 13px;
+  }
+  .wifi-row:last-child { border-bottom: none; }
+  .wifi-label { color: var(--muted); font-size: 12px; }
+  .wifi-value { color: var(--white); font-weight: 500; font-family: 'DM Sans', sans-serif; }
+  .copy-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); font-size: 10px; padding: 3px 8px;
+    border-radius: 3px; cursor: pointer; letter-spacing: 0.06em;
+    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ── FOOTER ── */
+  .main-footer {
+    margin-top: 40px; padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .footer-brand strong { color: var(--gold); font-weight: 400; }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a {
+    font-size: 11px; color: var(--muted); text-decoration: none;
+    letter-spacing: 0.05em; transition: color 0.15s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .content-grid { grid-template-columns: 1fr; }
+    .main { padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-mark">BB</div>
+    <span class="brand-name">Bani's <span>Beets</span> Coworking</span>
+  </div>
+  <div class="topbar-right">
+    <span class="tier-badge">🐝 Beet Squad</span>
+    <div class="avatar">EC</div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a class="nav-item active" href="#">
+        <span class="nav-icon">⬛</span> Dashboard
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📅</span> Class Schedule
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🎟</span> Events & Tickets
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">📚</span> Resource Library
+        <span class="badge">3</span>
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Community</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">💬</span> Community Board
+        <span class="badge">5</span>
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">👥</span> Member Directory
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Access</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🔑</span> Space Access Info
+      </a>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">🐝</span> Beet Squad Perks
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Account</div>
+      <a class="nav-item" href="#">
+        <span class="nav-icon">⚙️</span> My Account
+      </a>
+      <a class="nav-item" href="mailto:info@monarchcpro.com">
+        <span class="nav-icon">✉️</span> Contact Us
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <h1 class="greeting">Welcome back, <em>Eric.</em></h1>
+      <p class="greeting-sub"><span class="hours-status"></span>Space is open now · Wednesday, April 1, 2026</p>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Membership</div>
+        <div class="stat-value" style="font-size:22px; padding-top:4px;">Full Bloom</div>
+        <div class="stat-meta gold">🐝 Beet Squad — Rate Locked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Monthly Rate</div>
+        <div class="stat-value">$149</div>
+        <div class="stat-meta">Locked for life · saves $300/mo</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Next Class</div>
+        <div class="stat-value" style="font-size:20px; padding-top:4px;">Tonight</div>
+        <div class="stat-meta gold">Gospel Movez · 6PM</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Next Event</div>
+        <div class="stat-value" style="font-size:20px; padding-top:4px;">Apr 6</div>
+        <div class="stat-meta">Mic'd Up Mondays · Free</div>
+      </div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="col-left">
+
+        <!-- Announcements -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Announcements</span>
+            <a href="#" class="card-link">View all →</a>
+          </div>
+          <div class="card-body">
+            <div class="announcement">
+              <div class="ann-dot"></div>
+              <div>
+                <div class="ann-title">Gospel Movez is LIVE every Wednesday</div>
+                <div class="ann-body">Faith-inspired movement and fitness class runs weekly 6–9PM. Full Bloom and Beet Squad members attend free. Drop-in rate $25 at the door.</div>
+                <div class="ann-date">April 1, 2026</div>
+              </div>
+            </div>
+            <div class="announcement">
+              <div class="ann-dot"></div>
+              <div>
+                <div class="ann-title">Artistic Visions — 1st Sunday · Studio 15</div>
+                <div class="ann-body">Our next showcase is April 5. As a Full Bloom member your ticket is just $10. Public tickets are $25. Grab yours early.</div>
+                <div class="ann-date">March 30, 2026</div>
+              </div>
+            </div>
+            <div class="announcement">
+              <div class="ann-dot muted"></div>
+              <div>
+                <div class="ann-title">Beet Squad — You're locked in</div>
+                <div class="ann-body">Your founding rate of $149/mo is secured for life. Thank you for being one of the first 30. Rate lock disclosure on file.</div>
+                <div class="ann-date">March 24, 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Upcoming Events & Classes</span>
+            <a href="#" class="card-link">Full calendar →</a>
+          </div>
+          <div class="card-body">
+            <div class="event-item">
+              <div class="event-date-block">
+                <span class="event-month">APR</span>
+                <span class="event-day">1</span>
+              </div>
+              <div style="flex:1">
+                <div class="event-name">Gospel Movez</div>
+                <div class="event-meta">Tonight · 6PM – 9PM · Bani's Beets</div>
+              </div>
+              <span class="event-badge included">Included</span>
+            </div>
+            <div class="event-item">
+              <div class="event-date-block">
+                <span class="event-month">APR</span>
+                <span class="event-day">5</span>
+              </div>
+              <div style="flex:1">
+                <div class="event-name">Artistic Visions</div>
+                <div class="event-meta">Sunday · 7PM – 11PM · Studio 15</div>
+              </div>
+              <span class="event-badge ticket">$10</span>
+            </div>
+            <div class="event-item">
+              <div class="event-date-block">
+                <span class="event-month">APR</span>
+                <span class="event-day">6</span>
+              </div>
+              <div style="flex:1">
+                <div class="event-name">Mic'd Up Mondays</div>
+                <div class="event-meta">3rd Monday · 7PM – 11PM · Bani's Beets</div>
+              </div>
+              <span class="event-badge free">Free</span>
+            </div>
+            <div class="event-item">
+              <div class="event-date-block">
+                <span class="event-month">APR</span>
+                <span class="event-day">8</span>
+              </div>
+              <div style="flex:1">
+                <div class="event-name">Socardio</div>
+                <div class="event-meta">Every other Tuesday · 6PM – 9PM · Bani's Beets</div>
+              </div>
+              <span class="event-badge included">Included</span>
+            </div>
+            <div class="event-item">
+              <div class="event-date-block">
+                <span class="event-month">APR</span>
+                <span class="event-day">15</span>
+              </div>
+              <div style="flex:1">
+                <div class="event-name">Gospel Movez</div>
+                <div class="event-meta">Every Wednesday · 6PM – 9PM · Bani's Beets</div>
+              </div>
+              <span class="event-badge included">Included</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Quick Access</span>
+          </div>
+          <div class="card-body">
+            <div class="quick-grid">
+              <a class="quick-item" href="#">
+                <span class="quick-item-icon">📅</span>
+                <div class="quick-item-name">Book a Class</div>
+                <div class="quick-item-desc">Reserve your spot</div>
+              </a>
+              <a class="quick-item" href="https://mcorppro.com/artistic-visions" target="_blank">
+                <span class="quick-item-icon">🎟</span>
+                <div class="quick-item-name">Get Event Tickets</div>
+                <div class="quick-item-desc">Artistic Visions — $10</div>
+              </a>
+              <a class="quick-item" href="#">
+                <span class="quick-item-icon">📚</span>
+                <div class="quick-item-name">Resource Library</div>
+                <div class="quick-item-desc">3 new resources</div>
+              </a>
+              <a class="quick-item" href="#">
+                <span class="quick-item-icon">💬</span>
+                <div class="quick-item-name">Community Board</div>
+                <div class="quick-item-desc">5 new posts</div>
+              </a>
+              <a class="quick-item" href="#">
+                <span class="quick-item-icon">🔑</span>
+                <div class="quick-item-name">Space Access</div>
+                <div class="quick-item-desc">WiFi, codes & rules</div>
+              </a>
+              <a class="quick-item" href="#">
+                <span class="quick-item-icon">🐝</span>
+                <div class="quick-item-name">Beet Squad Perks</div>
+                <div class="quick-item-desc">Founding member only</div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="col-right">
+
+        <!-- Membership Card -->
+        <div class="membership-card">
+          <div class="mc-tier">🐝 Beet Squad · Founding Member</div>
+          <div class="mc-name">Eric Christion</div>
+          <div class="mc-rate">$149<span>/mo</span></div>
+          <div class="mc-lock">🔒 Rate locked for life · Full Bloom access</div>
+          <div class="mc-divider"></div>
+          <ul class="mc-perks">
+            <li>24/7 access · 365 days</li>
+            <li>Socardio & Gospel Movez included</li>
+            <li>Artistic Visions at $10</li>
+            <li>Mic'd Up Mondays — free + priority</li>
+            <li>Resource library & community board</li>
+            <li>Beet Squad founding member perks</li>
+          </ul>
+        </div>
+
+        <!-- Space Hours -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Space Hours</span>
+            <span style="font-size:11px; color:#4ecfa0;">● Open Now</span>
+          </div>
+          <div class="card-body">
+            <div class="hours-row">
+              <span class="hours-day">Your Access</span>
+              <span class="hours-time open">24 / 7</span>
+            </div>
+            <div class="hours-row">
+              <span class="hours-day">Seedling Hours</span>
+              <span class="hours-time">Mon–Fri · 9AM–6PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="hours-day">Root Hours</span>
+              <span class="hours-time">Daily · 7AM–11PM</span>
+            </div>
+            <div class="hours-row">
+              <span class="hours-day">Classes</span>
+              <span class="hours-time">Tue–Wed · 6PM–9PM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- WiFi & Access -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Space Access</span>
+          </div>
+          <div class="card-body">
+            <div class="wifi-row">
+              <span class="wifi-label">WiFi Network</span>
+              <span class="wifi-value">BanisBeetsHQ</span>
+            </div>
+            <div class="wifi-row">
+              <span class="wifi-label">WiFi Password</span>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span class="wifi-value">••••••••••</span>
+                <button class="copy-btn" onclick="this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+              </div>
+            </div>
+            <div class="wifi-row">
+              <span class="wifi-label">Door Access</span>
+              <span class="wifi-value">Kisi Mobile App</span>
+            </div>
+            <div class="wifi-row">
+              <span class="wifi-label">Support</span>
+              <a href="mailto:info@monarchcpro.com" style="color:var(--gold); font-size:13px; text-decoration:none;">info@monarchcpro.com</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="main-footer">
+      <div class="footer-brand">
+        <strong>Bani's Beets Coworking</strong> · Powered by Monarch Corporate Productions
+      </div>
+      <div class="footer-links">
+        <a href="https://mcorppro.com" target="_blank">mcorppro.com</a>
+        <a href="mailto:info@monarchcpro.com">Contact</a>
+        <a href="#">Terms</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>
